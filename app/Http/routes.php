@@ -23,7 +23,9 @@ Route::get('/test',function(){
     
     $user = 'xiaoming';
     Log::info($user. 'will login');
-    Event::fire(new UserLoggedIn($user));
+    $result = Event::fire(new UserLoggedIn($user));
+    
+    dd($result);
     Log::info($user.'Logined');
 
 });

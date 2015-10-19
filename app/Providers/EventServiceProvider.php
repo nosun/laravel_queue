@@ -13,11 +13,14 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
 	protected $listen = [
-		'App\Events\UserLoggedIn' => [
-			'App\Handlers\Events\UserEventHandler@onUserLogin'
-		]
+		//'App\Events\UserLoggedIn' => [
+		//	'App\Handlers\Events\UserEventHandler@onUserLogin'
+		//]
 	];
-
+	
+    protected $subscribe = [
+        'App\Handlers\Events\UserEventHandler'
+    ];
     /**
      * Register any other events for your application.
      *
