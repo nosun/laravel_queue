@@ -4,9 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Job extends Model
+class Channel extends Model
 {
-    protected $table = 'jobs';
+    protected $table = 'channel';
     public $timestamps = true;
-    
 }

@@ -35,7 +35,7 @@ class UserEventHandler
         $event_name = end($event_class);
         
         $data['level'] = $config['level'];
-        $data['title'] = ''
+        $data['title'] = '';
         // 从eventname中获取event相关系的人;
         $data['sendto'] = array('xiaoming','xiaozhao');
         
