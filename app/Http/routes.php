@@ -11,25 +11,8 @@
 |
 */
 
-use Illuminate\Contracts\Events;
-use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Log;
-
-use App\Commands\SendEmail;
-use App\Handlers\Events\UserEventHandler;
-use App\Events\UserLoggedIn;
-
-Route::get('/test',function(){
-    
-    $user = 'xiaoming';
-    Log::info($user. 'will login');
-    $result = Event::fire(new UserLoggedIn($user));
-    
-    dd($result);
-    Log::info($user.'Logined');
-
-});
-
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/login', 'UserController@login');

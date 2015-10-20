@@ -6,7 +6,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Queue;
 use App\Commands\SendEmail;
 use App\Job;
-use App\EventConfig;
+use App\Notify;
+use App\Event;
+use App\Handlers\NotifyHelper;
 
 class UserEventHandler
 {
@@ -30,30 +32,27 @@ class UserEventHandler
      */
     public function onUserLogin(UserLoggedIn $event)
     {
-        $config = $this->getEventConfig();
-        $event_class = explode('\\',get_class($event));
-        $event_name = end($event_class);
-        
-        $data['level'] = $config['level'];
-        $data['title'] = '';
-        // 从eventname中获取event相关系的人;
-        $data['sendto'] = array('xiaoming','xiaozhao');
-        
-        if($config['channel_mail']==true){
-            $data['template'] = $config['template_mail'];
-            // 通过 event_name 获取相关用户,应该做成通用的类
-            //$data['sendTo']   = $this->getSendTo($event_name,$channel);
-            $res = Queue::push(new SendMail($data));
-            if($res){
-                 Job::create([
-                    'job'=>$res,
-                    'type'=>'mail',
-                    'level'=>$data['level'],
-                    'data'=>serialize($data),
-                    'status'=>1,
-                ]);   
-            }
-        }
+        $helper  = new NotifyHelper($event);
+        // 获取event_info
+        $info    = $helper->getEventInfo();
+        // 获取通道信息
+        $notifys = $helper->getNotifyInfo($info['id']);
+
+//        if($config['channel_mail']==true){
+//            $data['template'] = $config['template_mail'];
+//            // 通过 event_name 获取相关用户,应该做成通用的类
+//            //$data['sendTo']   = $this->getSendTo($event_name,$channel);
+//            $res = Queue::push(new SendMail($data));
+//            if($res){
+//                 Job::create([
+//                    'job'=>$res,
+//                    'type'=>'mail',
+//                    'level'=>$data['level'],
+//                    'data'=>serialize($data),
+//                    'status'=>1,
+//                ]);
+//            }
+//        }
     }
     
     public function subscribe($events){
