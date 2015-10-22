@@ -24,12 +24,9 @@ class UserController extends Controller
         $user = User::find(1); // 我增加了一条测试数据;
 
         Log::info('user' . $user->name. 'will login');
-        Log::info('user\'s email is ' .$user->email);
 
         // 事件发生,事件的基本信息通过event对象传递给eventHandler;
         $result = Event::fire(new UserLoggedIn($user));
-
-        Log::info($user.'Logined');
     }
 
 }

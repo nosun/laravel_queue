@@ -7,7 +7,7 @@ use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 
-class SendEmail extends Command implements SelfHandling, ShouldQueue
+class SendWechat extends Command implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -31,7 +31,7 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 	 */
 	public function handle()
 	{
-		Log::info('at '.time().' log by queue and the msg is:'.serialize($this->message));
+		Log::info('at '.time().' log by queue and wechat msg is:'.serialize($this->message));
 		
 	}
 	

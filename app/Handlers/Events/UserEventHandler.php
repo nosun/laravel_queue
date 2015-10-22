@@ -1,14 +1,11 @@
 <?php namespace App\Handlers\Events;
 
 use App\Events\UserLoggedIn;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Queue;
-use App\Commands\SendEmail;
-use App\Job;
-use App\Notify;
 use App\Event;
 use App\Handlers\NotifyHelper;
+use App\Handlers\Pusher\PusherFactory;
+use App\NotifyLog;
+use Exception;
 
 class UserEventHandler
 {
@@ -17,11 +14,13 @@ class UserEventHandler
      *
      * @return void
      */
-     
+
+    private $user;
+
     public function __construct()
     {
-        
-        
+
+
     }
 
     /**
@@ -32,27 +31,45 @@ class UserEventHandler
      */
     public function onUserLogin(UserLoggedIn $event)
     {
-        $helper  = new NotifyHelper($event);
-        // 获取event_info
-        $info    = $helper->getEventInfo();
-        // 获取通道信息
-        $notifys = $helper->getNotifyInfo($info['id']);
+        $this->user = $event->user;
+        $helper     = new NotifyHelper($event);
+        $info       = $helper->getEventInfo();              // 获取event_info
+        $eventMsg   = $this->getEventMsg();
+        $notifies   = $helper->getNotifyInfo($info['id']); // 获取通道信息
 
-//        if($config['channel_mail']==true){
-//            $data['template'] = $config['template_mail'];
-//            // 通过 event_name 获取相关用户,应该做成通用的类
-//            //$data['sendTo']   = $this->getSendTo($event_name,$channel);
-//            $res = Queue::push(new SendMail($data));
-//            if($res){
-//                 Job::create([
-//                    'job'=>$res,
-//                    'type'=>'mail',
-//                    'level'=>$data['level'],
-//                    'data'=>serialize($data),
-//                    'status'=>1,
-//                ]);
-//            }
-//        }
+        if(empty($notifies)){
+            return;                                       // 没有需要发送消息的通道
+        }
+
+        foreach($notifies as $row){
+
+            $receiver = $this->getEventReceiver($row['channel']);
+
+            if(!empty($receiver)){
+                $notify = array(
+                    'level'       => $info['level'],
+                    'receiver'    => $receiver,
+                    'template_id' => $row['template_id'],
+                    'message'     => $eventMsg
+                );
+
+                $pusher = PusherFactory::createPusher($row['channel']);
+                $result = $pusher->push($notify); // 要求pusher 返回 array('job','code');
+            }else{
+                $result['code'] = 404;
+            }
+
+            $log = array(
+                'event_id'   => $info['id'],
+                'channel_id' => $row['channel_id'],
+                'level'   => $info['level'],
+                'job'     => isset($result['job'])?$result['job']:'',
+                'payload' => serialize($eventMsg),
+                'status'  => isset($result['code'])?$result['code']:0
+            );
+
+            NotifyLog::create($log);
+        }
     }
     
     public function subscribe($events){
@@ -67,12 +84,28 @@ class UserEventHandler
             'App\Handlers\Events\UserEventHandler@onUserLogout'
         );
     }
-    
-    private function getEventConfig(){
-        // 后面可以增加cache,并可以做成公共的方法，只需要传入name即可;
-        $config = EventConfig::where('name', '=', 'userLogin')->firstOrFail();
-        return $config;
+
+    public function getEventReceiver($channel){
+
+        switch($channel){
+            case 'sms':
+                return $this->user['phone'];
+            case 'email':
+                return $this->user['email'];
+            case 'wechat':
+                return $this->user['wechat'];
+            case 'siteMsg':
+                return $this->user['id'];
+            case 'default':
+                throw new Exception('no this channel');
+        }
+
     }
-    
+
+    public function getEventMsg(){
+
+        return 'userLogin';
+
+    }
     
 }

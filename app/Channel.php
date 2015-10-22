@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model
 {
-    protected $table = 'channel';
+    protected $table = 'notify_channel';
     public $timestamps = true;
 }

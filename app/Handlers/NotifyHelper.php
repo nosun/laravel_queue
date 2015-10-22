@@ -2,6 +2,7 @@
 
 use App\Event;
 use App\Notify;
+use App\Channel;
 
 class NotifyHelper {
 
@@ -13,7 +14,7 @@ class NotifyHelper {
         $this->getEventName($event);
     }
 
-    public function getEventName($event){
+    private function getEventName($event){
         $event_class = get_class($event);
         $arr = explode('\\',$event_class);
         $this->event_name = end($arr);
@@ -31,16 +32,23 @@ class NotifyHelper {
 
     public function getNotifyInfo($event_id){
         $channel = array();
-        $data = Notify::where('event_id', '=', $event_id)->where('status', '=', 2)->get();
+        $data = Notify::where('event_id', '=', $event_id)->where('status', '=', 1)->get();
         if(!empty($data)){
             foreach($data as $row){
+                $channel_name = self::getChannel($row['channel_id']);
                 $channel[]= array(
-                    'channel_id'  => $row['channel_id'],
-                    'template_id' => $row['template_id']
+                    'channel'      => $channel_name,
+                    'channel_id'   => $row['channel_id'],
+                    'template_id'  => $row['template_id'],
                 );
             }
         }
         return $channel;
+    }
+
+    public static function getChannel($channel_id){
+        $channel = Channel::where('id', '=', $channel_id)->firstOrFail();
+        return $channel['name'];
     }
 
 }
