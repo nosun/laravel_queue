@@ -1,28 +1,30 @@
-<?php namespace App\Handlers\Pusher;
+<?php namespace App\Notify\Channel;
 
-use App\Commands\SendWechat;
+use App\Commands\SendEmail;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Queue;
 
-class WechatPusher implements Pusher
-{
+class EmailChannel implements Channel {
 
-    public function push($notify)
-    {
+    public function sendQueue($notify){
 
         // 还需考虑异常情况;
-        $job = Queue::push(new SendWechat($notify));
+        $job = Queue::push(new SendEmail($notify));
 
         $result = array();
 
-        if (!empty($job)) {
+        if(!empty($job)){
             $result = array(
-                'job' => $job,
+                'job'  => $job,
                 'code' => 200
             );
         }
 
         return $result;
+    }
+
+    public function send($notify){
+
     }
 }

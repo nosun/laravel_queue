@@ -2,8 +2,9 @@
 
 use App\Events\UserLoggedIn;
 use App\Event;
-use App\Handlers\NotifyHelper;
-use App\Handlers\Pusher\PusherFactory;
+use App\Notify\Channel\Channel;
+use App\Notify\NotifyHelper;
+use App\Notify\Channel\ChannelFactory;
 use App\NotifyLog;
 use Exception;
 
@@ -15,7 +16,7 @@ class UserEventHandler
      * @return void
      */
 
-    private $user;
+    private $data;
 
     public function __construct()
     {
@@ -31,7 +32,7 @@ class UserEventHandler
      */
     public function onUserLogin(UserLoggedIn $event)
     {
-        $this->user = $event->user;
+        $this->data = $event->data;
         $helper     = new NotifyHelper($event);
         $info       = $helper->getEventInfo();              // 获取event_info
         $eventMsg   = $this->getEventMsg();
@@ -53,8 +54,8 @@ class UserEventHandler
                     'message'     => $eventMsg
                 );
 
-                $pusher = PusherFactory::createPusher($row['channel']);
-                $result = $pusher->push($notify); // 要求pusher 返回 array('job','code');
+                $channel = ChannelFactory::createChannel($row['channel']);
+                $result = $channel->sendQueue($notify); // 要求pusher 返回 array('job','code');
             }else{
                 $result['code'] = 404;
             }

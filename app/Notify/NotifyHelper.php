@@ -1,4 +1,4 @@
-<?php namespace App\Handlers;
+<?php namespace App\Notify;
 
 use App\Event;
 use App\Notify;

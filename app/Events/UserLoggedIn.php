@@ -10,15 +10,15 @@ class UserLoggedIn extends Event
 {
     use SerializesModels;
 
-    public $user;
+    public $data;
     /**
      * Create a new event instance.
-     *
+     * $data
      * @return void
      */
-    public function __construct($user)
+    public function __construct($data)
     {
-        $this->user = $user;
+        $this->data = $data;
     }
 
     /**

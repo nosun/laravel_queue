@@ -1,21 +1,21 @@
-<?php namespace App\Handlers\Pusher;
+<?php namespace App\Notify\Channel;
 
 use Exception;
 
-class PusherFactory {
+class ChannelFactory {
 
-    public static function createPusher($channel){
+    public static function CreateChannel($channel){
         switch ($channel){
             case 'email':
-                return new EmailPusher();
+                return new EmailChannel();
                 break;
             case 'sms':
-                return new smsPusher();
+                return new smsChannel();
             case 'wechat':
-                return new weChatPusher();
+                return new weChatChannel();
                 break;
             case 'siteMsg':
-                return new siteMsgPusher();
+                return new siteMsgChannel();
                 break;
             case 'default':
             default:

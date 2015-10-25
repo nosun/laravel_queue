@@ -25,8 +25,13 @@ class UserController extends Controller
 
         Log::info('user' . $user->name. 'will login');
 
+        $data = new \stdClass();
+        $data->time  = time();
+        $data->event = 'login';
+        $data->user  = $user;
+
         // 事件发生,事件的基本信息通过event对象传递给eventHandler;
-        $result = Event::fire(new UserLoggedIn($user));
+        $result = Event::fire(new UserLoggedIn($data));
     }
 
 }
