@@ -11,11 +11,13 @@ class UserLoggedIn extends Event
     use SerializesModels;
 
     public $data;
-    /**
-     * Create a new event instance.
-     * $data
-     * @return void
-     */
+
+    /*
+     *  @data array transfer to event
+     *
+     *  @return void
+    */
+
     public function __construct($data)
     {
         $this->data = $data;

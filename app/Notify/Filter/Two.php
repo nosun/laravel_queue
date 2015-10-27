@@ -1,7 +1,7 @@
 <?php namespace App\Notify\Filter;
 
 
-class One implements RuleInterface {
+class Two implements RuleInterface {
 
     public function apply($user_channel){
         return $user_channel;

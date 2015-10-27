@@ -16,3 +16,5 @@ Route::get('/', function () {
 });
 
 Route::get('/login', 'UserController@login');
+
+Route::get('/test','UserController@test');

@@ -11,6 +11,8 @@ use App\Events\UserLoggedIn;
 use Event;
 use App\User;
 
+use App\Notify\Filter\UserSettingFilter;
+
 class UserController extends Controller
 {
     /**
@@ -24,13 +26,37 @@ class UserController extends Controller
 
         Log::info('user' . $user->name. 'will login');
 
-        $data = new \stdClass();
-        $data->time  = time();
-        $data->event = 'login';
-        $data->user  = $user;
+        $data = array();
+        $data['time']  = time();
+        $data['event'] = 'login';
+        $data['user']  = $user;
 
         // 事件发生,事件的基本信息通过event对象传递给eventHandler;
         $result = Event::fire(new UserLoggedIn($data));
+    }
+
+    public function test(){
+
+        $array = array(
+            array(
+                'user_id' => 1,
+                'user_channel' => array(
+                    'email','wechat','sms'
+                )
+            ),
+            array(
+                'user_id' => 2,
+                'user_channel' => array(
+                    'email','wechat','sms'
+                )
+            ),
+        );
+        $filter = new UserSettingFilter();
+
+        $result = $filter->apply($array);
+
+
+
     }
 
 }

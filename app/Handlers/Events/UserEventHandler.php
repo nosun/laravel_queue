@@ -10,13 +10,17 @@ use Exception;
 
 class UserEventHandler
 {
+
+    /**
+     * $data array
+     *
+     */
+    private $data;
+
     /**
      * Create the event listener.
      *
-     * @return void
      */
-
-    private $data;
 
     public function __construct()
     {
@@ -90,13 +94,13 @@ class UserEventHandler
 
         switch($channel){
             case 'sms':
-                return $this->user['phone'];
+                return $this->data['user']['phone'];
             case 'email':
-                return $this->user['email'];
+                return $this->data['user']['email'];
             case 'wechat':
-                return $this->user['wechat'];
+                return $this->data['user']['wechat'];
             case 'siteMsg':
-                return $this->user['id'];
+                return $this->data['user']['id'];
             case 'default':
                 throw new Exception('no this channel');
         }
