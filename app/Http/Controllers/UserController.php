@@ -54,9 +54,6 @@ class UserController extends Controller
         $filter = new UserSettingFilter();
 
         $result = $filter->apply($array);
-
-
-
     }
 
 }

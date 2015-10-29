@@ -1,6 +1,6 @@
 <?php namespace App\Notify\Filter;
 
-
+use \Exception;
 class RuleFactory {
 
     public static function getRule($name){

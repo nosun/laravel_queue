@@ -2,6 +2,6 @@
 
 interface RuleInterface {
 
-    public function apply(array $user_Channel);
+    public function apply($user_Channel);
 
 }

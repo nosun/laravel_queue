@@ -2,7 +2,7 @@
 
 use Illuminate\Config;
 use App\NotifyRule;
-use App\UserNotifySetting;
+use Illuminate\Support\Facades\DB;
 
 class UserSettingFilter {
 
@@ -10,21 +10,25 @@ class UserSettingFilter {
     protected $enableChannels;
     protected $rules;
 
-    public function __construct(){
-        $this->rules = $this->getRules();
+    public function __construct($user_id){
+        $this->rules = $this->getRules($user_id);
     }
 
-    public function apply(array $user_channel){
+    public function apply(array $user_channels){
         $factory = new RuleFactory();
         foreach ($this->rules as $row){
-            $rule = $factory->getRule($row['name']);
-            $user_channel = $rule->apply($user_channel);
+            $rule = $factory->getRule($row->name);
+            $user_channels = $rule->apply($user_channels);
         }
-        return $user_channel;
+        return $user_channels;
     }
 
-    public function getRules(){
-        $rules = NotifyRule::where('status', '=', 1)->get();
+    public function getRules($user_id){
+        $rules = DB::table('notify_rule')
+            ->join('user_notify_setting', 'user_notify_setting.rule_id', '=','notify_rule.id')
+            ->where('user_notify_setting.user_id', '=', $user_id)
+            ->select('notify_rule.id', 'notify_rule.name')
+            ->get();
         return $rules;
     }
 
@@ -32,11 +36,5 @@ class UserSettingFilter {
 
 
     }
-
-    public static function getUserChannel($user_id){
-        return UserNotifySetting::where('user_id', '=', $user_id);
-    }
-
-
 
 }

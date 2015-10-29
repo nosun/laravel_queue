@@ -39,16 +39,25 @@ class UserEventHandler
         $this->data = $event->data;
         $helper     = new NotifyHelper($event);
         $info       = $helper->getEventInfo();              // 获取event_info
-        $eventMsg   = $this->getEventMsg();
-        $notifies   = $helper->getNotifyInfo($info['id']); // 获取通道信息
+        $channels   = $helper->getChannel($info['id']);  // 获取默认情况下事件的通知方式
 
-        if(empty($notifies)){
-            return;                                       // 没有需要发送消息的通道
+        // 此处根据事件返回用户id即可，如果有通用的方式，就独立出来，否则就放在事件的处理方法中。
+        $user_ids =  $this->data['user']->id; // 这里只是例子而已，实际过程中每个事件取法可能会不同
+
+        if(empty($channels) || empty($user_ids)){
+            return;
+        }
+
+        $notifies = $helper->getUserChannels($user_ids,$info['id']);
+        var_dump($notifies);die;
+
+        if(empty($notifies)){                                         // 没有需要发送消息的通道
+            return;
         }
 
         foreach($notifies as $row){
 
-            $receiver = $this->getEventReceiver($row['channel']);
+            //$receiver = $this->getEventReceiver($row['channel']);
 
             if(!empty($receiver)){
                 $notify = array(
@@ -90,27 +99,4 @@ class UserEventHandler
         );
     }
 
-    public function getEventReceiver($channel){
-
-        switch($channel){
-            case 'sms':
-                return $this->data['user']['phone'];
-            case 'email':
-                return $this->data['user']['email'];
-            case 'wechat':
-                return $this->data['user']['wechat'];
-            case 'siteMsg':
-                return $this->data['user']['id'];
-            case 'default':
-                throw new Exception('no this channel');
-        }
-
-    }
-
-    public function getEventMsg(){
-
-        return 'userLogin';
-
-    }
-    
 }
