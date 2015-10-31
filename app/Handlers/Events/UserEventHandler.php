@@ -2,11 +2,7 @@
 
 use App\Events\UserLoggedIn;
 use App\Event;
-use App\Notify\Channel\Channel;
 use App\Notify\NotifyHelper;
-use App\Notify\Channel\ChannelFactory;
-use App\NotifyLog;
-use Exception;
 
 class UserEventHandler
 {
@@ -36,50 +32,26 @@ class UserEventHandler
      */
     public function onUserLogin(UserLoggedIn $event)
     {
-        $this->data = $event->data;
-        $helper     = new NotifyHelper($event);
-        $info       = $helper->getEventInfo();              // 获取event_info
-        $channels   = $helper->getChannel($info['id']);  // 获取默认情况下事件的通知方式
+        $notifyHelper = new NotifyHelper($event);
 
-        // 此处根据事件返回用户id即可，如果有通用的方式，就独立出来，否则就放在事件的处理方法中。
-        $user_ids =  array($this->data['user']->id,2); // 这里只是例子而已，实际过程中每个事件取法可能会不同
+        // 根据事件返回用户id，如果有通用的方式，就独立出来，否则就放在事件的处理方法中。
+        $user_ids =  array($event->data['user']->id,2); // 这里只是例子而已，实际过程中每个事件取法可能会不同
 
-        $notifies = $helper->getUsersChannels($user_ids,$info['id']);
+        // event data 可以在这里进行处理
+        $message = array(
+            'title'   => 'user login',
+            'content' => 'you are welcome',
+            'url'     => 'http://www.xzx.com',
+            'date'    => date('Y-m-d', time()),
+            'user_id' => $event->data['user']->id
+        );
 
-        if(empty($notifies)){                                         // 没有需要发送消息的通道
-            return;
-        }
+        $notifyHelper->Notify($user_ids,$message);
+    }
 
-        var_dump($notifies);die;
-        foreach($notifies as $row){
-
-            //$receiver = $this->getEventReceiver($row['channel']);
-
-            if(!empty($receiver)){
-                $notify = array(
-                    'level'       => $info['level'],
-                    'receiver'    => $receiver,
-                    'template_id' => $row['template_id'],
-                    'message'     => $eventMsg
-                );
-
-                $channel = ChannelFactory::createChannel($row['channel']);
-                $result = $channel->sendQueue($notify); // 要求pusher 返回 array('job','code');
-            }else{
-                $result['code'] = 404;
-            }
-
-            $log = array(
-                'event_id'   => $info['id'],
-                'channel_id' => $row['channel_id'],
-                'level'   => $info['level'],
-                'job'     => isset($result['job'])?$result['job']:'',
-                'payload' => serialize($eventMsg),
-                'status'  => isset($result['code'])?$result['code']:0
-            );
-
-            NotifyLog::create($log);
-        }
+    public function  onUserLogout(UserLoggedOut $event)
+    {
+        //
     }
     
     public function subscribe($events){

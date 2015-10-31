@@ -35,25 +35,15 @@ class UserController extends Controller
         $result = Event::fire(new UserLoggedIn($data));
     }
 
-    public function test(){
+    public function test()
+    {
+        $user = User::findOrFail(1);
+        
 
-        $array = array(
-            array(
-                'user_id' => 1,
-                'user_channel' => array(
-                    'email','wechat','sms'
-                )
-            ),
-            array(
-                'user_id' => 2,
-                'user_channel' => array(
-                    'email','wechat','sms'
-                )
-            ),
-        );
-        $filter = new UserSettingFilter();
-
-        $result = $filter->apply($array);
+        Mail::send('emails.reminder', ['user' => $user], function ($m) use ($user) {
+            $m->to($user->email, $user->name)->subject('Your Reminder!');
+        });
     }
+
 
 }

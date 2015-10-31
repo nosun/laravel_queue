@@ -20,7 +20,7 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 	{
 		$this->message     = $notify['message'];
 		$this->template_id = $notify['template_id'];
-		$this->receiver     = $notify['receiver'];
+		$this->receiver    = $notify['contracts'];
 		$this->level       = $notify['level'];
 	}
 
@@ -31,6 +31,14 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 	 */
 	public function handle()
 	{
+
+
+
+
+
+
+
+
 		Log::info('at '.time().' log by queue and the msg is:'.serialize($this->message));
 	}
 	

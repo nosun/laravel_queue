@@ -6,15 +6,15 @@ class ChannelFactory {
 
     public static function CreateChannel($channel){
         switch ($channel){
-            case 'email':
+            case 1: // email
                 return new EmailChannel();
                 break;
-            case 'sms':
+            case 2: // wechat
                 return new smsChannel();
-            case 'wechat':
+            case 3: // sms
                 return new weChatChannel();
                 break;
-            case 'siteMsg':
+            case 4: // siteMsg
                 return new siteMsgChannel();
                 break;
             case 'default':
