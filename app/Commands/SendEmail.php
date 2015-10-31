@@ -7,6 +7,7 @@ use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Mail;
+use Mockery\CountValidator\Exception;
 
 class SendEmail extends Command implements SelfHandling, ShouldQueue
 {
@@ -32,20 +33,21 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 	 */
 	public function handle()
 	{
-		$message = $this->message;
-		foreach($this->receiver as $user){
-			Mail::send($this->template, ['user' => $user,'data' => $message], function ($mail) use ($user,$message) {
+		if ($this->attempts() < 2) {
+			$message = $this->message;
+			Log::info('at '.time().' log by queue and the msg is:'.serialize($message));
+			//throw new Exception('test',1);
+			foreach($this->receiver as $user){
+				Mail::send($this->template, ['user' => $user,'data' => $message], function ($mail) use ($user,$message) {
 					$mail->to($user->email, $user->name)->subject($message['subject']);
-			});
+				});
+			}
 		}
-
-		Log::info('at '.time().' log by queue and the msg is:'.serialize($this->message));
 	}
 	
-	public function failed(){
+	public function failed($data){
 		
-		
-		
+		Log::info('at '.time().' log by queue and the msg is:'.serialize($data));
 		
 	}
 	

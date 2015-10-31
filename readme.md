@@ -196,6 +196,3 @@ message：
 
 - 针对用户，channel，返回true，false集合，
 - 每个filter，就是一个规则，和数据库中的notify_rule对应
-
-
-
