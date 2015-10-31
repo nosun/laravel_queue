@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Events\UserLoggedIn;
 use Event;
 use App\User;
+use Mail;
 
 use App\Notify\Filter\UserSettingFilter;
 
@@ -38,9 +39,9 @@ class UserController extends Controller
     public function test()
     {
         $user = User::findOrFail(1);
-        
 
-        Mail::send('emails.reminder', ['user' => $user], function ($m) use ($user) {
+
+        Mail::send('email.reminder', ['user' => $user], function ($m) use ($user) {
             $m->to($user->email, $user->name)->subject('Your Reminder!');
         });
     }

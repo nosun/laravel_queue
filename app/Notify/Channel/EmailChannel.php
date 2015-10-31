@@ -9,15 +9,17 @@ class EmailChannel implements Channel {
 
     public function sendQueue($notify){
 
-        // 还需考虑异常情况;
         $job = Queue::push(new SendEmail($notify));
-
-        $result = array();
 
         if(!empty($job)){
             $result = array(
                 'job'  => $job,
                 'code' => 200
+            );
+        }else{
+            $result = array(
+                'job'  => '',
+                'code' => 404
             );
         }
 
@@ -26,5 +28,8 @@ class EmailChannel implements Channel {
 
     public function send($notify){
 
+        $result = new sendEmail($notify);
+
+        return $result;
     }
 }

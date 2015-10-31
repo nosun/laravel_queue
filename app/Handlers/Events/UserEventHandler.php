@@ -39,10 +39,9 @@ class UserEventHandler
 
         // event data 可以在这里进行处理
         $message = array(
-            'title'   => 'user login',
+            'subject' => 'user login',
             'content' => 'you are welcome',
             'url'     => 'http://www.xzx.com',
-            'date'    => date('Y-m-d', time()),
             'user_id' => $event->data['user']->id
         );
 

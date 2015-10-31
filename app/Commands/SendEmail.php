@@ -6,6 +6,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
+use Mail;
 
 class SendEmail extends Command implements SelfHandling, ShouldQueue
 {
@@ -13,14 +14,14 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 
     private $level;
     private $receiver;
-    private $template_id;
+    private $template;
     private $message;
 	
 	public function __construct($notify)
 	{
 		$this->message     = $notify['message'];
-		$this->template_id = $notify['template_id'];
-		$this->receiver    = $notify['contracts'];
+		$this->template    = $notify['template'];
+		$this->receiver    = $notify['receiver'];
 		$this->level       = $notify['level'];
 	}
 
@@ -31,13 +32,12 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 	 */
 	public function handle()
 	{
-
-
-
-
-
-
-
+		$message = $this->message;
+		foreach($this->receiver as $user){
+			Mail::send($this->template, ['user' => $user,'data' => $message], function ($mail) use ($user,$message) {
+					$mail->to($user->email, $user->name)->subject($message['subject']);
+			});
+		}
 
 		Log::info('at '.time().' log by queue and the msg is:'.serialize($this->message));
 	}
