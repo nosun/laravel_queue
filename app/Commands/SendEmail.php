@@ -32,7 +32,6 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 	public function handle()
 	{
 		Log::info('at '.time().' log by queue and the msg is:'.serialize($this->message));
-		
 	}
 	
 	public function failed(){

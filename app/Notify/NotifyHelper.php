@@ -48,14 +48,29 @@ class NotifyHelper {
     }
 
     public function getUsersChannels($user_ids,$event_id){
-        $notifies = array();
+        $users_channels = array();
+        $channels = $this->getChannel($event_id);
 
+        // 反复考虑，此处最终输出 user_id => array $user_channels 这样的数组;
+        if(!empty($channels) && !empty($user_ids)){
+            foreach($user_ids as $user_id){
+                foreach($channels as $row){
+                    $users_channels[$user_id][] = $row['channel_id'];
+                }
+            }
+        }
 
-        return $notifies;
+        $filter = new UserSettingFilter();
+        $users_channels = $filter->apply($users_channels);
+
+        // 转换成 channels => user_ids
+        $channels_users = $this->transpose($users_channels);
+        return $channels_users;
     }
 
-    // 根据user_id，event_id，user_setting 获取user_event_channels
-    public function getUserChannels($user_id,$event_id){
+    // 根据user_id，event_id，user_setting 获取单个用户的 user_event_channels
+    // 目前使用多用户的方式，暂时没用
+    /*public function getUserChannels($user_id,$event_id){
 
         $user_channels = array();
         $channels = $this->getChannel($event_id);
@@ -70,6 +85,7 @@ class NotifyHelper {
         $user_channels = $filter->apply($user_channels);
         return $user_channels;
     }
+    */
 
     // 使用 Redis存储时 有用。当用户修改设置时，批量的设置用户在各个事件上的Channel
     public function setUserChannels($user_id,$event_id){
@@ -83,11 +99,17 @@ class NotifyHelper {
 
     }
 
-
-    public function getNotify($channels,$user_id){
-
-
+    private function transpose($array){
+        $arr = array();
+        foreach($array as $key => $_arr){
+            foreach($_arr as $value){
+                $arr[$value][] = $key;
+            }
+        }
+        ksort($arr);
+        return $arr;
     }
+
 
     public static function getChannelName($channel_id){
         $channel = Channel::where('id', '=', $channel_id)->firstOrFail();

@@ -42,19 +42,15 @@ class UserEventHandler
         $channels   = $helper->getChannel($info['id']);  // 获取默认情况下事件的通知方式
 
         // 此处根据事件返回用户id即可，如果有通用的方式，就独立出来，否则就放在事件的处理方法中。
-        $user_ids =  $this->data['user']->id; // 这里只是例子而已，实际过程中每个事件取法可能会不同
+        $user_ids =  array($this->data['user']->id,2); // 这里只是例子而已，实际过程中每个事件取法可能会不同
 
-        if(empty($channels) || empty($user_ids)){
-            return;
-        }
-
-        $notifies = $helper->getUserChannels($user_ids,$info['id']);
-        var_dump($notifies);die;
+        $notifies = $helper->getUsersChannels($user_ids,$info['id']);
 
         if(empty($notifies)){                                         // 没有需要发送消息的通道
             return;
         }
 
+        var_dump($notifies);die;
         foreach($notifies as $row){
 
             //$receiver = $this->getEventReceiver($row['channel']);

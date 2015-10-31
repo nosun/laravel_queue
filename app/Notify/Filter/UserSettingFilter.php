@@ -2,39 +2,36 @@
 
 use Illuminate\Config;
 use App\NotifyRule;
-use Illuminate\Support\Facades\DB;
+use App\UserNotifySetting;
 
 class UserSettingFilter {
 
     protected $disableChannels;
     protected $enableChannels;
-    protected $rules;
 
-    public function __construct($user_id){
-        $this->rules = $this->getRules($user_id);
+    public function __construct(){
+
     }
 
-    public function apply(array $user_channels){
+    // user_ids, users
+    public function apply($users_channels){
         $factory = new RuleFactory();
-        foreach ($this->rules as $row){
-            $rule = $factory->getRule($row->name);
-            $user_channels = $rule->apply($user_channels);
-        }
-        return $user_channels;
+        array_walk($users_channels,function(&$user_channels,$user_id) use ($factory) {
+            // 获取用户设置
+            $user_rules = $this->getRules($user_id);
+            // 过滤
+            foreach($user_rules as $rule){
+                $filter = $factory->getRule($rule->name);
+                $user_channels = $filter->apply($user_channels,$user_rules);
+            }
+        });
+        return $users_channels;
     }
 
     public function getRules($user_id){
-        $rules = DB::table('notify_rule')
-            ->join('user_notify_setting', 'user_notify_setting.rule_id', '=','notify_rule.id')
-            ->where('user_notify_setting.user_id', '=', $user_id)
-            ->select('notify_rule.id', 'notify_rule.name')
-            ->get();
+        $UserNotifySetting = new UserNotifySetting();
+        $rules = $UserNotifySetting->getRulesByUserId($user_id);
         return $rules;
-    }
-
-    public function getUserSetting(){
-
-
     }
 
 }
