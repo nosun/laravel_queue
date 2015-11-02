@@ -55,10 +55,10 @@ class NotifyHelper {
 
         foreach($notifies as $channel_id => $user_ids){
 
-            $receiver = $this->getContract($users,$user_ids);      // 需要发送的对象 user_ids 分
+            $receiver = $this->getContract($users,$user_ids);         // 需要发送的对象 user_ids 分
             $template = $this->getTemplate($this->event_info['id'],$channel_id);
             if(empty($template)){
-                throw new \Exception('The template Not found',2);   // 异常需要系统的收集一下;
+                throw new \Exception('The template Not found',2);     // 异常需要系统的收集一下;
                 continue;
             }
 

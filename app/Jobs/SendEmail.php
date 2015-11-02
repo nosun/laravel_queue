@@ -1,15 +1,14 @@
-<?php namespace App\Commands;
+<?php namespace App\Jobs;
 
-use App\Commands\Command;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Mail;
-use Mockery\CountValidator\Exception;
+use App\NotifyLog;
 
-class SendEmail extends Command implements SelfHandling, ShouldQueue
+class SendEmail extends Job implements SelfHandling, ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -36,7 +35,7 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 		if ($this->attempts() < 2) {
 			$message = $this->message;
 			Log::info('at '.time().' log by queue and the msg is:'.serialize($message));
-			//throw new Exception('test',1);
+			throw new \Exception('test',1);
 			foreach($this->receiver as $user){
 				Mail::send($this->template, ['user' => $user,'data' => $message], function ($mail) use ($user,$message) {
 					$mail->to($user->email, $user->name)->subject($message['subject']);
@@ -45,10 +44,8 @@ class SendEmail extends Command implements SelfHandling, ShouldQueue
 		}
 	}
 	
-	public function failed($data){
-		
-		Log::info('at '.time().' log by queue and the msg is:'.serialize($data));
-		
+	public function failed($job){
+		// do some thing;
 	}
 	
 

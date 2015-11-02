@@ -1,9 +1,6 @@
 <?php namespace App\Notify\Channel;
 
-use App\Commands\SendWechat;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Queue;
+use App\Jobs\SendWechat;
 
 class WechatChannel implements Channel
 {

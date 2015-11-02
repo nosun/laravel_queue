@@ -1,19 +1,19 @@
 <?php namespace App\Notify\Channel;
 
-use App\Commands\SendEmail;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Queue;
+use App\Jobs\SendEmail;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class EmailChannel implements Channel {
 
+    use DispatchesJobs;
     public function sendQueue($notify){
 
-        $job = Queue::push(new SendEmail($notify));
+        $job = (new SendEmail($notify))->onQueue('email')->delay(1);
+        $res = $this->dispatch($job);
 
-        if(!empty($job)){
+        if(!empty($res)){
             $result = array(
-                'job'  => $job,
+                'job'  => $res,
                 'code' => 200
             );
         }else{
