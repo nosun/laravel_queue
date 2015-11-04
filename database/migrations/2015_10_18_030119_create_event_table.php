@@ -17,7 +17,9 @@ class CreateEventTable extends Migration
             $table->string('name');
             $table->string('display_name');
             $table->string('description');
+            $table->integer('type');
             $table->integer('level');
+            $table->integer('status');      // 开关
             $table->timestamps();
         });
     }
