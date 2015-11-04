@@ -16,10 +16,10 @@ class CreateNotifyTable extends Migration
         // 通知通道
         Schema::create('notify_channel', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');         // 频道名称
-            $table->string('display_name'); // 显示名称
-            $table->string('description');  // 描述
-            $table->string('status');       // 开关
+            $table->string('name');                     // 频道名称
+            $table->string('display_name');             // 显示名称
+            $table->string('description');              // 描述
+            $table->tinyInteger('status');              // 开关
             $table->timestamps();
         });
 
@@ -36,13 +36,13 @@ class CreateNotifyTable extends Migration
         // 通知日志
         Schema::create('notify_log', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('type');      // 事件类别 '通知:1;待办:2'
-            $table->integer('level');     // 事件级别 '普通:1;重要:2;紧急:3'
-            $table->string('event_id');   // 事件id
-            $table->string('channel_id'); // 频道id
-            $table->string('job');        // 通知Job标识 'queue:job,not queue:null'
-            $table->integer('status');    // 通知状态
-            $table->longText('payload');  // 通知详情
+            $table->tinyInteger('type');               // 事件类别 '通知:1;待办:2'
+            $table->tinyInteger('level');              // 事件级别 '普通:1;重要:2;紧急:3'
+            $table->integer('event_id')->unsigned();   // 事件id
+            $table->integer('channel_id')->unsigned(); // 频道id
+            $table->string('job');                     // 通知Job标识 'queue:job,not queue:null'
+            $table->tinyInteger('status');             // 通知状态
+            $table->longText('payload');               // 通知详情
             $table->timestamps();
         });
 
@@ -52,7 +52,7 @@ class CreateNotifyTable extends Migration
             $table->integer('event_id')->unsigned();    // 事件id
             $table->integer('channel_id')->unsigned();  // 频道id
             $table->integer('template_id')->unsigned(); // 模板id
-            $table->integer('status')->unsigned();      // 状态，开关
+            $table->tinyInteger('status');              // 状态，开关
 
 //            $table->foreign('event_id')->references('id')->on('event')
 //                ->onUpdate('cascade')->onDelete('cascade');                 // 如果事件删除，事件的所有通道清除，尽量用status
@@ -66,7 +66,7 @@ class CreateNotifyTable extends Migration
             $table->string('name');         // 频道名称
             $table->string('display_name'); // 显示名称
             $table->string('description');  // 描述
-            $table->string('status');       // 开关
+            $table->tinyInteger('status');  // 开关
         });
 
         // 用户通知设定
@@ -74,7 +74,7 @@ class CreateNotifyTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();    // 用户id
             $table->integer('rule_id')->unsigned();    // 规则id
-            $table->integer('status')->unsigned();     // 状态，开关
+            $table->tinyInteger('status');             // 状态，开关
 
 //            $table->foreign('user_id')->references('id')->on('users')        // 如果用户删除，用户的所有规则清除
 //                ->onUpdate('cascade')->onDelete('cascade');
