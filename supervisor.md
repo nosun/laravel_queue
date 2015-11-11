@@ -22,59 +22,61 @@ Supervisord是用Python实现的一款非常实用的进程管理工具。官网
 
 ### 配置文件
 
-	[unix_http_server]
-	file = /var/run/supervisor.sock
-	chmod = 0777
-	chown= root:felinx
-	
-	[inet_http_server]
-	
-	port=9001
-	username = admin
-	password = yourpassword
-	
-	[supervisorctl]
-	; 必须和'unix_http_server'里面的设定匹配
-	serverurl = unix:///var/run/supervisord.sock
-	
-	[supervisord]
-	logfile=/var/log/supervisord/supervisord.log ; (main log file;default $CWD/supervisord.log)
-	logfile_maxbytes=50MB       ; (max main logfile bytes b4 rotation;default 50MB)
-	logfile_backups=10          ; (num of main logfile rotation backups;default 10)
-	loglevel=info               ; (log level;default info; others: debug,warn,trace)
-	pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
-	nodaemon=true               ; (start in foreground if true;default false)
-	minfds=1024                 ; (min. avail startup file descriptors;default 1024)
-	minprocs=200                ; (min. avail process descriptors;default 200)
-	user=root                   ; (default is current user, required if root)
-	childlogdir=/var/log/supervisord/; ('AUTO' child log dir, default $TEMP)
-	
-	[rpcinterface:supervisor]
-	supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-	
-	; 管理的单个进程的配置，可以添加多个program
-	[program:chatdemon]
-	command=python /home/felinx/demos/chat/chatdemo.py
-	autostart = true
-	startsecs = 5
-	user = felinx
-	redirect_stderr = true
+	; supervisor config file
+    
+    [unix_http_server]
+    file=/var/run/supervisor.sock   ; (the path to the socket file)
+    chmod=0700                       ; sockef file mode (default 0700)
+    
+    [supervisord]
+    logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
+    pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+    childlogdir=/var/log/supervisor            ; ('AUTO' child log dir, default $TEMP)
+    
+    ; the below section must remain in the config file for RPC
+    ; (supervisorctl/web interface) to work, additional interfaces may be
+    ; added by defining them in separate rpcinterface: sections
+    [rpcinterface:supervisor]
+    supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+    
+    [supervisorctl]
+    serverurl=unix:///var/run/supervisor.sock ; use a unix:// URL  for a unix socket
+    
+    ; The [include] section can just contain the "files" setting.  This
+    ; setting can list multiple files (separated by whitespace or
+    ; newlines).  It can also contain wildcards.  The filenames are
+    ; interpreted as relative to this file.  Included files *cannot*
+    ; include files themselves.
+    
+    [include]
+    files = /etc/supervisor/conf.d/*.conf
+    
+新增配置文件 /etc/supervisor/conf.d/laravel.queue.conf
 
-	；这对这个program的log的配置，上面的logfile_maxbytes是supervisord本身的log配置
-	stdout_logfile_maxbytes = 20MB
-	stdoiut_logfile_backups = 20
-	stdout_logfile = /var/log/supervisord/chatdemo.log
-	
-	; 配置一组进程，对于类似的program可以通过这种方式添加，避免手工一个个添加
-	[program:groupworker]
-	command=python /home/felinx/demos/groupworker/worker.py
-	numprocs=24
-	process_name=%(program_name)s_%(process_num)02d
-	autostart = true
-	startsecs = 5
-	user = felinx
-	redirect_stderr = true
-	stdout_logfile = /var/log/supervisord/groupworker.log
+    [inet_http_server]
+    port = 192.168.10.10:9101
+    username = admin
+    password = 123456
+    
+    [program:laravel-worker_email]
+    process_name=%(program_name)s_%(process_num)02d
+    command=php /home/vagrant/code/laravel_queue/artisan queue:work --queue=email --sleep=3 --tries=2 // 命令
+    autostart=true
+    autorestart=true
+    user=vagrant
+    numprocs=2    // 进程数
+    redirect_stderr=true
+    stdout_logfile=/home/vagrant/code/laravel_queue/worker_email.log  // 记录日志
+    
+    [program:laravel-worker_default]
+    process_name=%(program_name)s_%(process_num)02d
+    command=php /home/vagrant/code/laravel_queue/artisan queue:work --queue=default --sleep=3 --tries=2
+    autostart=true
+    autorestart=true
+    user=vagrant
+    numprocs=1
+    redirect_stderr=true
+    stdout_logfile=/home/vagrant/code/laravel_queue/worker_default.log
 
 ### supervisor 运行
 
@@ -104,9 +106,9 @@ Supervisord是用Python实现的一款非常实用的进程管理工具。官网
 	supervisorctl stop all
 	supervisorctl restart all
 	# 控制目标进程
-	supervisorctl stop shadowsocks
-	supervisorctl start shadowsocks
-	supervisorctl restart shadowsocks
+	supervisorctl stop laravel-worker*
+	supervisorctl start laravel-worker*
+	supervisorctl restart laravel-worker*
 
 ### Supervisord管理
 
