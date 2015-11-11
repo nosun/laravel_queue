@@ -1,4 +1,4 @@
-<?php namespace App\Notify\Channel;
+<?php namespace App\Channel;
 
 use App\Jobs\SendEmail;
 use Illuminate\Foundation\Bus\DispatchesJobs;

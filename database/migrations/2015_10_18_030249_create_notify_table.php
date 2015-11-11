@@ -41,6 +41,7 @@ class CreateNotifyTable extends Migration
             $table->integer('event_id')->unsigned();   // 事件id
             $table->integer('channel_id')->unsigned(); // 频道id
             $table->string('job');                     // 通知Job标识 'queue:job,not queue:null'
+            $table->string('receiver');                // 被通知者
             $table->tinyInteger('status');             // 通知状态
             $table->longText('payload');               // 通知详情
             $table->timestamps();

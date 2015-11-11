@@ -1,4 +1,4 @@
-<?php namespace App\Notify\Channel;
+<?php namespace App\Channel;
 
 class SmsChannel implements Channel {
 

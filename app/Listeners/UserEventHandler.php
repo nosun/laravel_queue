@@ -1,7 +1,6 @@
-<?php namespace App\Handlers\Events;
+<?php namespace App\Listeners;
 
 use App\Events\UserLoggedIn;
-use App\Event;
 use App\Notify\NotifyHelper;
 
 class UserEventHandler
@@ -57,12 +56,12 @@ class UserEventHandler
         
          $events->listen(
             'App\Events\UserLoggedIn',
-            'App\Handlers\Events\UserEventHandler@onUserLogin'
+            'App\Listeners\UserEventHandler@onUserLogin'
         );
 
         $events->listen(
             'App\Events\UserLoggedOut',
-            'App\Handlers\Events\UserEventHandler@onUserLogout'
+            'App\Listeners\UserEventHandler@onUserLogout'
         );
     }
 

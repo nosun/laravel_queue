@@ -7,7 +7,7 @@ use App\NotifyLog;
 use App\NotifyTemplate;
 use App\User;
 use App\Notify\Filter\UserSettingFilter;
-use App\Notify\Channel\ChannelFactory;
+use App\Channel\ChannelFactory;
 use Config;
 use Exception;
 
@@ -55,35 +55,38 @@ class NotifyHelper {
 
         foreach($notifies as $channel_id => $user_ids){
 
-            $receiver = $this->getContract($users,$user_ids);         // 需要发送的对象 user_ids 分
+            $channel = ChannelFactory::createChannel($channel_id);
+            $receivers = $this->getContract($users,$user_ids);        // 需要发送的对象 user_ids 分
             $template = $this->getTemplate($this->event_info['id'],$channel_id);
+
             if(empty($template)){
                 throw new \Exception('The template Not found',2);     // 异常需要系统的收集一下;
                 continue;
             }
 
-            $notify = array(
-                'level'    => $this->event_info['level'],
-                'receiver' => $receiver,
-                'template' => $template,
-                'message'  => $message
-            );
+            foreach($receivers as $receiver){
+                $notify = array(
+                    'level'    => $this->event_info['level'],
+                    'receiver' => [$receiver], // 此处还是使用了数组，保持job多发的通用性
+                    'template' => $template,
+                    'message'  => $message
+                );
 
-            $channel = ChannelFactory::createChannel($channel_id);
-            $result = $channel->sendQueue($notify); // 要求pusher 返回 array('job','code');
+                $result = $channel->sendQueue($notify); // 要求pusher 返回 array('job','code');
 
-            $log = array(
-                'event_id'   => $this->event_info['id'],
-                'type'       => $this->event_info['type'],
-                'channel_id' => $channel_id,
-                'level'   => $this->event_info['level'],
-                'job'     => isset($result['job'])?$result['job']:'',
-                'payload' => serialize($message),
-                'status'  => isset($result['code'])?$result['code']:0
-            );
-            // var_dump($log);die;
+                $log = array(
+                    'event_id'   => $this->event_info['id'],
+                    'type'       => $this->event_info['type'],
+                    'channel_id' => $channel_id,
+                    'receiver'   => serialize($receiver),
+                    'job'     => isset($result['job'])?$result['job']:'',
+                    'payload' => serialize($message),
+                    'status'  => isset($result['code'])?$result['code']:0
+                );
+                // var_dump($log);die;
+                NotifyLog::create($log);
 
-            NotifyLog::create($log);
+            }
         }
     }
 
